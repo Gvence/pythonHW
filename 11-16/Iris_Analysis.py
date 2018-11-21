@@ -2,7 +2,6 @@ import numpy as np
 import scipy.optimize as op
 import matplotlib.pyplot as plt
 
-
 def loadData (filename):
     data = np.loadtxt(filename)
     data = np.array(data)
@@ -63,7 +62,8 @@ def computUnitValue (theta, X) :
 def backwardProp (ttheta, clayerDelta, z):
     m, n = np.shape(z)
     z = np.row_stack(((np.ones((1, n))), z))
-    tlayerDelta = np.multiply(np.dot(ttheta, clayerDelta), np.multiply(z, (np.ones((( m + 1), n)) - z)))
+    tlayerDelta = np.multiply(np.dot(ttheta, clayerDelta), np.multiply\
+                                                            (sigmoid(z), (np.ones((( m + 1), n)) - sigmoid(z))))
     return tlayerDelta
 
 def computDelta (theta, output, Y, z):
