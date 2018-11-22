@@ -60,17 +60,17 @@ def computUnitValue (theta, X) :
     a2, z2 = forwardProp(theta[2], a1)
     return np.array([a0, a1, a2]), np.array([z0, z1, z2])
 
-def backwardProp (ttheta, clayerDelta, z):
-    m, n = np.shape(z)
-    z = np.row_stack(((np.ones((1, n))), z))
-    tlayerDelta = np.multiply(np.dot(ttheta, clayerDelta), np.multiply\
-                                                            (sigmoid(z), (np.ones((( m + 1), n)) - sigmoid(z))))
+def backwardProp (ttheta, clayerDelta, tunitValue):
+    m, n = np.shape(tunitValue)
+    tunitValue = indexBia(tunitValue)
+    tlayerDelta =  np.multiply(np.dot(ttheta.T, clayerDelta), np.multiply\
+                                                            (tunitValue, (np.ones(( (m + 1), n)) - tunitValue)))
     return tlayerDelta
 
-def computDelta (theta, output, Y, z):
-    delta2 = output - Y
-    delta1 = backwardProp(theta[2].T, delta2, z[1])
-    delta0 = backwardProp(theta[1].T, delta1[1:, :], z[0])
+def computDelta (theta, unitValue, Y):
+    delta2 = unitValue[2] - Y
+    delta1 = backwardProp(theta[2], delta2, unitValue[1])
+    delta0 = backwardProp(theta[1], delta1[1:, :], unitValue[0])
     return np.array([delta0, delta1, delta2])
 
 def computeGradient (Delta, unitValue, theta, tempDelta, LAMBDA, X):
@@ -115,50 +115,46 @@ def weightsCheckOut(weight, X):
 
 
 if __name__ == '__main__':
+#网络参数初始化
     Layer_num = 3
     Unit_L0 = 4
     Unit_L1 = 6
     Unit_L2 = 3
     INIT_EPSILON = 1
-    LAMBDA = 10
-    ALPHA = 0.01
-    ITERATION = 100
-    data = loadData('setdata.txt')
-    load_data = data[0:24, :]
+    LAMBDA = 2.56
+    ALPHA = 0.001
+    ITERATION = 15000
+
+#网络数据初始化
+    load_data = loadData('setdata.txt')
     cost = []
     X, Y = reshapeData(load_data)
     feature_num = np.size(X.T, 0)
     theta = initparaments(Unit_L0, Unit_L1, Unit_L2, feature_num, 'theta')
     Delta = initparaments(Unit_L0, Unit_L1, Unit_L2, feature_num, 'delta')
+
+#开始训练
     for i in range(ITERATION):
         unitValue, z = computUnitValue(theta, X.T)
-        tempDelta = computDelta(theta, unitValue[2], Y.T, z)
+        tempDelta = computDelta(theta, unitValue, Y.T)
         Delta, D = computeGradient(Delta, unitValue, theta, tempDelta, LAMBDA, X.T)
         theta = theta - ALPHA*D
         cost = np.append(cost, costFunction(unitValue[2], Y, theta))
 
-
-
-    # testFlag = unitValue[2].T
-
-    # print(testFlag,'\n\n\n\n\n')
-    # print(tempDelta[2].T)
+#保存训练好的权重
     saveArray('Theta.npy', theta)
     np.savetxt('theta0.txt', theta[0])
     np.savetxt('theta1.txt', theta[1])
     np.savetxt('theta2.txt', theta[2])
-    weights = np.load('Theta.npy')
 
-
-
-    test_data = data[25:, :]
+#载入需要测试的权重
+    weights = np.load('Theta.npy')#
+    test_data = loadData('test.txt')
     X, Y = reshapeData(test_data)
     result = weightsCheckOut(weights, X)
     print(np.around(np.column_stack((result.T,Y)), decimals=2))
 
-
-
-
+#绘制误差图
     fig = plt.figure(1, figsize=(10, 8), dpi=120)
     chart = fig.add_subplot(1, 1, 1)
     x1 = np.arange(0,ITERATION, 1)
