@@ -6,7 +6,7 @@ import tty,termios
 import time
 import RPi.GPIO as GPIO
 import socket
-address = ('192.168.1.104',5999)#本主机IP
+address = ('192.168.1.100',5999)#本主机IP
 readdr = ("192.168.1.105",3888)#客户端主机IP
 s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 s.bind(address)
@@ -41,6 +41,9 @@ GPIO.setup(IN1,GPIO.OUT,initial=GPIO.LOW)
 GPIO.setup(IN2,GPIO.OUT,initial=GPIO.LOW)
 GPIO.setup(IN3,GPIO.OUT,initial=GPIO.LOW)
 GPIO.setup(IN4,GPIO.OUT,initial=GPIO.LOW)
+GPIO.setup(IR_R,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+GPIO.setup(IR_L,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+GPIO.setup(IR_M,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 
 ##########超声波模块管脚类型设置#########
 GPIO.setup(TRIG,GPIO.OUT,initial=GPIO.LOW)#超声波模块发射端管脚设置trig
